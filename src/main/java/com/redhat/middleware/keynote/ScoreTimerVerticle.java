@@ -233,7 +233,7 @@ public class ScoreTimerVerticle extends AbstractVerticle {
           teamCounterFuture.complete();
         });
       } else {
-        LOGGER.info("Could not find teamCounter for team: " + teamCounter);
+        LOGGER.fine("Could not find teamCounter for team: " + teamCounter);
       }
       Counter teamPopCounter = teamPopCounters.get(team);
       if (teamPopCounter != null) {
@@ -246,7 +246,7 @@ public class ScoreTimerVerticle extends AbstractVerticle {
           teamPopCounterFuture.complete();
         });
       } else {
-        LOGGER.info("Could not find teamPopCounter for team: " + teamCounter);
+        LOGGER.fine("Could not find teamPopCounter for team: " + teamCounter);
       }
     }
 
@@ -292,20 +292,20 @@ public class ScoreTimerVerticle extends AbstractVerticle {
             final JsonArray achievementResponse = body.toJsonArray();
             int size = achievementResponse.size();
             final JsonObject achievements = new JsonObject();
-            LOGGER.info("Player " + uuid + " has " + size + " achievements: " + achievementResponse);
+            LOGGER.fine("Player " + uuid + " has " + size + " achievements: " + achievementResponse);
             
             for(int count = 0 ; count < size; count++) {
               final JsonObject achievement = achievementResponse.getJsonObject(count);
-              LOGGER.info(count + " Achievement: " + achievement);
+              LOGGER.fine(count + " Achievement: " + achievement);
               Boolean achieved = achievement.getBoolean("achieved");
               String achievementType = achievement.getString("achievementType");
               if (achieved.booleanValue() == true) {
-                LOGGER.info(" AchievementType: " + achievementType + " is true");
+                LOGGER.fine(" AchievementType: " + achievementType + " is true");
                 achievements.put(achievementType, true);
               }
                
             } // for
-            LOGGER.info("BURR achievements: " + achievements);
+            LOGGER.fine("BURR achievements: " + achievements);
             playerScore.put("achievements", achievements);
             future.complete();
           });
