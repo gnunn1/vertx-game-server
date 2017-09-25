@@ -49,7 +49,7 @@ public class ScoreTimerVerticle extends AbstractVerticle {
 
   @Override
   public void start(Future<Void> future) throws Exception {
-    LOGGER.setLevel(Level.INFO);
+    LOGGER.setLevel(Level.WARNING);
     final long interval = config().getLong("interval", 500L);
     final int numTopPlayers = config().getInteger("numTopPlayers", 10);
     final int testPort = config().getInteger("innerPort", 9002);
