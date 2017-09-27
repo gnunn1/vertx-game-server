@@ -11,6 +11,10 @@
 
     <property name="hazelcast.health.monitoring.delay.seconds">2</property>
 
+    <!-- at the moment the discovery needs to be activated explicitly -->
+    <!--
+    <property name="hazelcast.discovery.enabled">true</property>    
+    -->
     <property name="hazelcast.max.no.heartbeat.seconds">5</property>
     <property name="hazelcast.max.no.master.confirmation.seconds">10</property>
     <property name="hazelcast.master.confirmation.interval.seconds">10</property>
@@ -19,9 +23,7 @@
     <property name="hazelcast.connection.monitor.max.faults">2</property>
     <property name="hazelcast.partition.migration.timeout">10</property>
     <property name="hazelcast.migration.min.delay.on.member.removed.seconds">3</property>
-
-    <!-- at the moment the discovery needs to be activated explicitly -->
-    <property name="hazelcast.discovery.enabled">true</property>    
+   
   </properties>
 
   <network>
@@ -33,9 +35,9 @@
       -->
       <ports>0</ports>
     </outbound-ports>
+    <!--
     <join>
       <multicast enabled="false"/>
-
       <tcp-ip enabled="false"/>
       <discovery-strategies>
         <discovery-strategy enabled="true"
@@ -43,9 +45,9 @@
         </discovery-strategy>
       </discovery-strategies>
     </join>    
-    <!--
+    -->
     <join>
-      <multicast enabled="false">
+      <multicast enabled="true">
         <multicast-group>224.2.2.3</multicast-group>
         <multicast-port>54327</multicast-port>
       </multicast>
@@ -53,7 +55,6 @@
         <interface>127.0.0.1</interface>
       </tcp-ip>
     </join>
-    -->
     <interfaces enabled="true">
       <interface>127.0.0.1</interface>
     </interfaces>
