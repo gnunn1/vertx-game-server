@@ -8,6 +8,20 @@
     <property name="hazelcast.rest.enabled">false</property>
     <property name="hazelcast.wait.seconds.before.join">0</property>
     <property name="hazelcast.logging.type">jdk</property>
+
+    <property name="hazelcast.health.monitoring.delay.seconds">2</property>
+
+    <property name="hazelcast.max.no.heartbeat.seconds">5</property>
+    <property name="hazelcast.max.no.master.confirmation.seconds">10</property>
+    <property name="hazelcast.master.confirmation.interval.seconds">10</property>
+    <property name="hazelcast.member.list.publish.interval.seconds">10</property>
+    <property name="hazelcast.connection.monitor.interval">10</property>
+    <property name="hazelcast.connection.monitor.max.faults">2</property>
+    <property name="hazelcast.partition.migration.timeout">10</property>
+    <property name="hazelcast.migration.min.delay.on.member.removed.seconds">3</property>
+
+    <!-- at the moment the discovery needs to be activated explicitly -->
+    <property name="hazelcast.discovery.enabled">true</property>    
   </properties>
 
   <network>
