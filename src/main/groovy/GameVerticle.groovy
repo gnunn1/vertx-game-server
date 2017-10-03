@@ -100,6 +100,10 @@ class GameVerticle extends GroovyVerticle {
   @Override
   public void start(Future<Void> future) throws Exception {
     LOGGER.setLevel(Level.INFO);
+    
+    if (vertx.isClustered()) {
+      updateStateFromCluster();
+    }
 
     num_teams = (int) context.config().get("number-of-teams", 4)
     score_broadcast_interval = (int) context.config().get("score-broadcast-interval", 2500)
@@ -177,6 +181,49 @@ class GameVerticle extends GroovyVerticle {
     })
 
     retrieveConfiguration()
+  }
+
+  /**
+   * Sets the game state in a cluster wide map
+   */
+  void setClusteredState(String value) {
+    LOGGER.info("Setting state to " + state);
+    if (vertx.isClustered()) {
+      LOGGER.info("Vertx clustered, saving state to map");
+      vertx.sharedData().getClusterWideMap("game", { resMap -> 
+          if (resMap.succeeded()) {
+              resMap.result().put("state", value, { resPut ->
+                LOGGER.info("State " + value + " was saved in cluster map");
+              });
+          }
+      });
+    }
+  }
+
+  /**
+   * Updates the local state variable from the cluster wide map
+   * TODO: Should setState be called instead of settingf variable directly
+   * or is the broadcast that setState is doing going to lead to a swarm
+   * of messages
+   */
+  String updateStateFromCluster() {
+    LOGGER.info("Retrieving state");
+    // Retrieve the game state from the clustered manager map
+    if (vertx.isClustered()) {
+        vertx.sharedData().getClusterWideMap("game", { res -> 
+            if (res.succeeded()) {
+                // Get the "deployments" value from the AsyncMap
+                res.result().get("state", { resGet ->
+                  if (resGet.result != null) {
+                    LOGGER.info("Updating cluster game state to " + resGet.result);
+                    this.state = resGet.result();
+                  } else {
+                    LOGGER.info("Cluster state has not been set");
+                  }
+                });
+            }
+        });
+    }
   }
 
   // control the state of the game
@@ -753,6 +800,7 @@ class GameVerticle extends GroovyVerticle {
 
   def setState(_state) {
     state = _state;
+    setClusteredState(state);
 
     def message = [
             type : 'state',
