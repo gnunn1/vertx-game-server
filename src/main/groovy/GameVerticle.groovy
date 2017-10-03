@@ -216,7 +216,9 @@ class GameVerticle extends GroovyVerticle {
                 res.result().get("state", { resGet ->
                   if (resGet.result != null) {
                     LOGGER.info("Updating cluster game state to " + resGet.result);
-                    this.state = resGet.result();
+                    if (state != resGet.result()) {
+                      setState(resGet.result());
+                    }
                   } else {
                     LOGGER.info("Cluster state has not been set");
                   }
@@ -795,12 +797,12 @@ class GameVerticle extends GroovyVerticle {
     { m ->
       def data = m.body();
       setState(data.state);
+      setClusteredState(state);
     }
   }
 
   def setState(_state) {
     state = _state;
-    setClusteredState(state);
 
     def message = [
             type : 'state',
