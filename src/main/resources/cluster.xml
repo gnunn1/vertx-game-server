@@ -155,15 +155,6 @@
     <eviction-percentage>0</eviction-percentage>
     <merge-policy>com.hazelcast.map.merge.LatestUpdateMapMergePolicy</merge-policy>
   </map>
-  <map name="playerNames">
-    <backup-count>1</backup-count>
-    <time-to-live-seconds>0</time-to-live-seconds>
-    <max-idle-seconds>0</max-idle-seconds>
-    <eviction-policy>NONE</eviction-policy>
-    <max-size policy="PER_NODE">0</max-size>
-    <eviction-percentage>0</eviction-percentage>
-    <merge-policy>com.hazelcast.map.merge.LatestUpdateMapMergePolicy</merge-policy>
-  </map>
 
   <!-- Used internally in Vert.x to implement async locks -->
   <semaphore name="__vertx.*">
