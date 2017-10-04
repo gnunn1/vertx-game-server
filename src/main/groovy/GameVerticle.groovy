@@ -74,7 +74,6 @@ class GameVerticle extends GroovyVerticle {
 
   AsyncMap<String, String> playerNames;
 
-
   HttpClient mechanicsClient;
   HttpClient achievementClient;
   HttpClient scoreClient;
@@ -103,6 +102,13 @@ class GameVerticle extends GroovyVerticle {
     
     if (vertx.isClustered()) {
       updateStateFromCluster();
+      // Use cluster wide map for player names
+      vertx.sharedData().getClusterWideMap("playerNames", { resMap -> 
+          if (resMap.succeeded()) {
+            LOGGER.info("Using cluster wide map for player names");
+            playerNames = resMap.result;
+          }
+      });
     }
 
     num_teams = (int) context.config().get("number-of-teams", 4)
