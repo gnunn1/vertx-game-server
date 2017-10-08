@@ -41,6 +41,7 @@ class GameVerticle extends GroovyVerticle {
   static final String TEAM_COUNTER_NAME = "redhat.team";
   static final String TEAM_POP_COUNTER_NAME = "redhat.team.pop";
   static final String PLAYER_NAME_MAP = "redhat.player.name";
+  static final String GAME_STATE_MAP = "redhat.game.state";
 
   // Configuration
   int num_teams
@@ -73,6 +74,7 @@ class GameVerticle extends GroovyVerticle {
   Map adminConfiguration = [:]
 
   AsyncMap<String, String> playerNames;
+  AsyncMap<String, String> clusteredState;
 
   HttpClient mechanicsClient;
   HttpClient achievementClient;
@@ -100,10 +102,6 @@ class GameVerticle extends GroovyVerticle {
   public void start(Future<Void> future) throws Exception {
     LOGGER.setLevel(Level.INFO);
     
-    if (vertx.isClustered()) {
-      updateStateFromCluster();
-    }
-
     num_teams = (int) context.config().get("number-of-teams", 4)
     score_broadcast_interval = (int) context.config().get("score-broadcast-interval", 2500)
     teams = Team.createTeams(num_teams)
@@ -160,6 +158,9 @@ class GameVerticle extends GroovyVerticle {
     // Selfie State change
     eventBus.consumer("selfie-state-change", onSelfieStateChange(eventBus))
 
+    // Ask clients to reconnect
+    eventBus.consumer("reconnect", onReconnect(eventBus));
+
     // Ask for scores
     eventBus.consumer("/scores", updateTeamScores())
 
@@ -168,6 +169,7 @@ class GameVerticle extends GroovyVerticle {
     futures.addAll(getIndividualTeamCounters())
     futures.addAll(getIndividualTeamPopCounters())
     futures.add(getPlayerNameMap())
+    futures.add(getGameStateMap())
     
 
     CompositeFuture.all(futures).setHandler({ ar ->
@@ -180,51 +182,6 @@ class GameVerticle extends GroovyVerticle {
     })
 
     retrieveConfiguration()
-  }
-
-  /**
-   * Sets the game state in a cluster wide map
-   */
-  void setClusteredState(String value) {
-    LOGGER.info("Setting state to " + state);
-    if (vertx.isClustered()) {
-      LOGGER.info("Vertx clustered, saving state to map");
-      vertx.sharedData().getClusterWideMap("game", { resMap -> 
-          if (resMap.succeeded()) {
-              resMap.result().put("state", value, { resPut ->
-                LOGGER.info("State " + value + " was saved in cluster map");
-              });
-          }
-      });
-    }
-  }
-
-  /**
-   * Updates the local state variable from the cluster wide map
-   * TODO: Should setState be called instead of settingf variable directly
-   * or is the broadcast that setState is doing going to lead to a swarm
-   * of messages
-   */
-  String updateStateFromCluster() {
-    LOGGER.info("Retrieving state");
-    // Retrieve the game state from the clustered manager map
-    if (vertx.isClustered()) {
-        vertx.sharedData().getClusterWideMap("game", { res -> 
-            if (res.succeeded()) {
-                // Get the "deployments" value from the AsyncMap
-                res.result().get("state", { resGet ->
-                  if (resGet.result != null) {
-                    LOGGER.info("Updating cluster game state to " + resGet.result);
-                    if (state != resGet.result()) {
-                      setState(resGet.result());
-                    }
-                  } else {
-                    LOGGER.info("Cluster state has not been set");
-                  }
-                });
-            }
-        });
-    }
   }
 
   // control the state of the game
@@ -796,11 +753,35 @@ class GameVerticle extends GroovyVerticle {
     broadcastAdminMessage(configurationMessage);
   }
 
+  /**
+   * Inform all clients to reconnect. Used when redeployed (i.e. Blue/Green) and want to
+   * force clients to reconnect to pick up a new pod.
+   */
+  Handler<Message> onReconnect(EventBus eventBus) {
+    { m ->
+        def data = m.body();
+        if (!data.message.token || data.message.token != authToken) {
+          LOGGER.warning("Incorrect token received");
+          LOGGER.warning(data.toString());
+        } else {
+          def message = [
+                  type: 'reconnect',
+                  timestamp: System.currentTimeMillis()
+          ];
+          broadcastAllMessage(message);
+          broadcastAdminMessage(message);
+        }
+    }
+  }
+
   Handler<Message> onStateChange(EventBus eventBus) {
     { m ->
       def data = m.body();
       setState(data.state);
-      setClusteredState(state);
+      // Update clustered state
+      clusteredState.put("state", data.state, { resPut ->
+        LOGGER.info("State " + data.state + " was saved in cluster map");
+      });
     }
   }
 
@@ -927,6 +908,35 @@ class GameVerticle extends GroovyVerticle {
     }
     return futures
   }
+
+  /**
+   * Load clustered game state map and set initial state
+   * of the game based on the value in the map.
+   */
+  def getGameStateMap() {
+    def future = Future.future()
+
+    vertx.sharedData().getClusterWideMap(GAME_STATE_MAP, { ar ->
+      if (ar.succeeded()) {
+        clusteredState = ar.result()
+        ar.result().get("state", { resGet ->
+          if (resGet.result != null) {
+            LOGGER.info("Updating cluster game state to " + resGet.result);
+            if (state != resGet.result()) {
+              setState(resGet.result());
+            }
+          } else {
+            LOGGER.info("Cluster game state has not been set, using default value of 'title'");
+          }
+          future.complete()
+        });
+      } else {
+        future.fail(ar.cause())
+      }
+    })
+    return future
+  }
+  
 
   def getPlayerNameMap() {
     def future = Future.future()
