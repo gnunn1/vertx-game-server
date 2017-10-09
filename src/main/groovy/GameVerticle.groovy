@@ -768,6 +768,7 @@ class GameVerticle extends GroovyVerticle {
                   type: 'reconnect',
                   timestamp: System.currentTimeMillis()
           ];
+          LOGGER.info("Broadcast reconnect message");
           broadcastAllMessage(message);
           broadcastAdminMessage(message);
         }

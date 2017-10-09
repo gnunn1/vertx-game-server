@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.2.xsd"
+<hazelcast xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.6.xsd"
            xmlns="http://www.hazelcast.com/schema/config"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <properties>
-    <property name="hazelcast.mancenter.enabled">false</property>
     <property name="hazelcast.memcache.enabled">false</property>
     <property name="hazelcast.rest.enabled">false</property>
     <property name="hazelcast.wait.seconds.before.join">0</property>
@@ -11,10 +10,6 @@
 
     <property name="hazelcast.health.monitoring.delay.seconds">2</property>
 
-    <!-- at the moment the discovery needs to be activated explicitly -->
-    <!--
-    <property name="hazelcast.discovery.enabled">true</property>    
-    -->
     <property name="hazelcast.max.no.heartbeat.seconds">5</property>
     <property name="hazelcast.max.no.master.confirmation.seconds">10</property>
     <property name="hazelcast.master.confirmation.interval.seconds">10</property>
@@ -23,9 +18,11 @@
     <property name="hazelcast.connection.monitor.max.faults">2</property>
     <property name="hazelcast.partition.migration.timeout">10</property>
     <property name="hazelcast.migration.min.delay.on.member.removed.seconds">3</property>
-   
-  </properties>
 
+    <!-- at the moment the discovery needs to be activated explicitly -->
+    <property name="hazelcast.discovery.enabled">true</property>
+
+  </properties>
   <network>
     <port auto-increment="true" port-count="10000">5701</port>
     <outbound-ports>
@@ -35,28 +32,19 @@
       -->
       <ports>0</ports>
     </outbound-ports>
-    <!--
     <join>
       <multicast enabled="false"/>
+
       <tcp-ip enabled="false"/>
       <discovery-strategies>
         <discovery-strategy enabled="true"
                             class="com.redhat.middleware.keynote.discovery.HazelcastKubernetesDiscoveryStrategy">
         </discovery-strategy>
       </discovery-strategies>
-    </join>    
-    -->
-    <join>
-      <multicast enabled="true">
-        <multicast-group>224.2.2.3</multicast-group>
-        <multicast-port>54327</multicast-port>
-      </multicast>
-      <tcp-ip enabled="false">
-        <interface>127.0.0.1</interface>
-      </tcp-ip>
     </join>
+
     <interfaces enabled="false">
-      <interface>127.0.0.1</interface>
+      <interface>10.10.1.*</interface>
     </interfaces>
     <ssl enabled="false"/>
     <socket-interceptor enabled="false"/>
@@ -84,7 +72,7 @@
     <!--Queue capacity. 0 means Integer.MAX_VALUE.-->
     <queue-capacity>0</queue-capacity>
   </executor-service>
-  <map name="subs">
+  <map name="__vertx.subs">
 
     <!--
         Number of backups. If 1 is set as the backup-count for example,
