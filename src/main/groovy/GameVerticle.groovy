@@ -723,10 +723,10 @@ class GameVerticle extends GroovyVerticle {
   }
 
   def setConfiguration(Map configuration) {
-    String color = System.getenv("COLOR");
-    if (color != null) {
-      configuration.put("background", color);
-    }
+    // String color = System.getenv("COLOR");
+    // if (color != null) {
+    //   configuration.put("background", color);
+    // }
     teams.each { i, team ->
       team.configuration = configuration;
     }
