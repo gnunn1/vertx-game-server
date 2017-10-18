@@ -35,7 +35,7 @@ public class ServerVerticle extends AbstractVerticle {
 
     router.get("/health").handler(this::ping);
 
-    //router.post("/reconnect").handler(this::reconnect);
+    router.post("/reconnect").handler(this::reconnect);
 
     vertx.createHttpServer()
         .websocketHandler(ws -> {
@@ -174,7 +174,6 @@ public class ServerVerticle extends AbstractVerticle {
     });
   }
 
-  /*
   private void reconnect(RoutingContext context) {
     LOGGER.info("Reconnect message received");
     vertx.eventBus().publish("reconnect",
@@ -182,5 +181,4 @@ public class ServerVerticle extends AbstractVerticle {
         .put("message", context.getBodyAsJson()));
     context.response().setStatusCode(200).end("Reconnect Accepted");
   }
-  */
 }
