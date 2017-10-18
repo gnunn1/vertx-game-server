@@ -112,7 +112,6 @@ public class ServerVerticle extends AbstractVerticle {
                         if (message.body().containsKey("configuration") && System.getenv("COLOR") != null) {
                           JsonObject config = message.body().getJsonObject("configuration");
                           config.put("background", System.getenv("COLOR"));
-                          DeleteEdit event
                         }
                       socket.writeFinalTextFrame(message.body().encode());
                     } catch (IllegalStateException e) {
