@@ -35,7 +35,7 @@ public class ServerVerticle extends AbstractVerticle {
 
     router.get("/health").handler(this::ping);
 
-    //router.post("/reconnect").handler(this::reconnect);
+    router.post("/reconnect").handler(this::reconnect);
 
     vertx.createHttpServer()
         .websocketHandler(ws -> {
