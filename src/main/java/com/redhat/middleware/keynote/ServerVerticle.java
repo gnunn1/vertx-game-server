@@ -108,10 +108,20 @@ public class ServerVerticle extends AbstractVerticle {
                   consumer.handler(message -> {
                     // Message sent from the game verticle to be transferred to the web socket
                     try {
+                      // String type;
+                      // if (message.body().containsKey("type")) {
+                      //   type = message.body().getString("type");
+                      //   if (type!="team-score" && type!="heartbeat") {
+                      //     LOGGER.info(type + " message:\n" + message.body());
+                      //   }
+                      // } else {
+                      //   LOGGER.info("No type message:\n" + message.body());
+                      // }
                       // Override background color based on where websocket is being served from, i.e. either blue or green
-                        if (message.body().containsKey("configuration") && System.getenv("COLOR") != null) {
+                      if (message.body().containsKey("configuration") && System.getenv("COLOR") != null) {
                           JsonObject config = message.body().getJsonObject("configuration");
                           config.put("background", System.getenv("COLOR"));
+                          LOGGER.info("Override background color to " + System.getenv("COLOR"));
                       }
                       socket.writeFinalTextFrame(message.body().encode());
                     } catch (IllegalStateException e) {
