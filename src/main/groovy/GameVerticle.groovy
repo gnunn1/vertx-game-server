@@ -101,6 +101,10 @@ class GameVerticle extends GroovyVerticle {
   @Override
   public void start(Future<Void> future) throws Exception {
     LOGGER.setLevel(Level.INFO);
+
+    if (System.env.get("AUTH_TOKEN") != null) {
+      authToken = System.env.get("AUTH_TOKEN");
+    }
     
     num_teams = (int) context.config().get("number-of-teams", 4)
     score_broadcast_interval = (int) context.config().get("score-broadcast-interval", 2500)
