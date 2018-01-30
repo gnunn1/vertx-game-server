@@ -76,7 +76,7 @@ Use this as cluster.xml if you want blue/green to be a separate clusters with no
     <queue-capacity>0</queue-capacity>
   </executor-service>
   <map name="default">
-    <backup-count>2</backup-count>
+    <backup-count>3</backup-count>
   </map>  
   <map name="__vertx.subs">
 
@@ -85,7 +85,7 @@ Use this as cluster.xml if you want blue/green to be a separate clusters with no
         then all entries of the map will be copied to another JVM for
         fail-safety. 0 means no backup.
     -->
-    <backup-count>2</backup-count>
+    <backup-count>3</backup-count>
     <!--
   Maximum number of seconds for each entry to stay in the map. Entries that are
   older than <time-to-live-seconds> and not updated for <time-to-live-seconds>
