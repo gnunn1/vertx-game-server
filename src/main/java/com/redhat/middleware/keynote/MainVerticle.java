@@ -11,6 +11,7 @@ public class MainVerticle extends AbstractVerticle {
   @Override
   public void start(Future<Void> future) throws Exception {
     System.out.println("Starting Keynote Demo Vert.x verticles, default event loop pool size is " + VertxOptions.DEFAULT_EVENT_LOOP_POOL_SIZE);
+
     JsonObject config = config();
     Integer gameVerticleInstances = config.getInteger("game-verticle-instances", 6);
     Integer trafficVerticleInstances = config.getInteger("traffic-verticle-instances", 1);

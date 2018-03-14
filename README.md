@@ -1,8 +1,8 @@
 # Vert.x Game Server
 
-This project is an implementation of the Game server on top of Vert.x.
+This project is an implementation of the game server on top of Vert.x for the OpenShift Red Hat Summit Game Demo. Please see [summit-ansible-game](https://github.com/gnunn1/summit-game-ansible) for full context.
 
-It provides the HTTP endpoints and websockets for the _game_ part of the demo.
+It provides the HTTP endpoints and websockets for the _game_ part of the demo and acts as a gateway for other services.
 
 ## Structure
 
@@ -29,7 +29,7 @@ Tests are simulating a couple of loads, so may takes a bit of time to run.
 ## Fast run for dev
 
 ```
-mvn compile exec:exec@run
+mvn vertx:run
 ```
 
 ## Redeploy for Dev
